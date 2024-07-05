@@ -3,20 +3,26 @@ use std::{io, process, error::Error, fs::OpenOptions, fs::File};
 
 
 fn main() {
-    start();
+    which_file();
+}
+
+//stores the file of the name and calls for the choice_input func
+fn which_file(){
+    let final_path: String = input_path_file();
+    choice_input(&final_path);
 }
 
 fn read_csv(file_path: &str) -> Result<(), Box<dyn Error>> {
     let mut reader: Reader<File> = Reader::from_path(file_path)?;
+    println!("----------------------------------------------------------------------------");
     
-    println!();
     //prints the headers
     let headers: &StringRecord = reader.headers()?;
     for header in headers.iter() {
-        print!("{}, ", header);
+        print!("{} | ", header);
     }
     println!();
-
+    println!("----------------------------------------------------------------------------");
     //prints the other rows
     for result in reader.records() {
         let record: StringRecord = result?;
@@ -26,8 +32,7 @@ fn read_csv(file_path: &str) -> Result<(), Box<dyn Error>> {
         }
         println!();
     }
-
-    println!();
+    println!("----------------------------------------------------------------------------");
     Ok(())
 }
 
@@ -128,25 +133,22 @@ fn remove_from_csv(file_path: &str, index_for_column: usize, string_to_remove: &
 
 
 //handles the choices depends of the user input
-fn choice_handler(choice: usize) {
+fn choice_handler(choice: usize, final_path: &str) {
     match choice {
         1 => {
-            let final_path: String = input_path_file();
             if let Err(e) = read_csv(&final_path){
                 eprintln!("{}", e);
             }
-            start();
+            choice_input(&final_path);
         },
         2 => {
-            let final_path: String = input_path_file();
             if let Err(e) = write_in_csv(&final_path) {
                 println!("error running example: {e}");
                 process::exit(1);
             }
-            start();
+            choice_input(&final_path);
         },
         3 => {
-            let final_path: String = input_path_file();
             println!("Write the index of the column(starts from 0) :");
             let mut index_for_column: String = String::new();
 
@@ -165,7 +167,7 @@ fn choice_handler(choice: usize) {
                 println!("error running example: {e}");
                 process::exit(1);  
             }
-            start();
+            choice_input(&final_path);
         },
         4 => {
             println!("Program exit succesfully!");
@@ -173,13 +175,14 @@ fn choice_handler(choice: usize) {
         },
         _ => {
             println!("Choice: {choice} is not existing, please try again!");
-            start();
+            choice_input(&final_path);
         }
     }
 }
 
 //asks the user for the input of the choice
-fn start() {
+fn choice_input(final_path: &str) {
+
     let mut choice: String = String::new();
 
     println!("Choices:");
@@ -187,10 +190,13 @@ fn start() {
     println!("    2 for writing a new row of data in the csv file,");
     println!("    3 for removing a row from specific columns,");
     println!("    4 for exit");
-    io::stdin().read_line(&mut choice).expect("Failed to read line!");
+
+    io::stdin()
+        .read_line(&mut choice)
+        .expect("Failed to read line!");
 
     let choice: usize = choice.trim().parse().expect("Please type a number!");
 
-    choice_handler(choice);
+    choice_handler(choice, &final_path);
 }
 
