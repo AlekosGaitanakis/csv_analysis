@@ -19,7 +19,7 @@ fn read_csv(file_path: &str) -> Result<(), Box<dyn Error>> {
 
     //prints the other rows
     for result in reader.records() {
-        let record: csv::StringRecord = result?;
+        let record: StringRecord = result?;
 
         for field in record.iter() {
             print!("{}, ", field);
@@ -101,7 +101,7 @@ fn remove_from_csv(file_path: &str, index_for_column: usize, string_to_remove: &
 
         let indx: &str = record.get(index_for_column).ok_or("Invalid index for column!")?;
 
-        if indx == string_to_remove {
+        if indx.trim() == string_to_remove.trim() {
             continue;
         }
         else {
