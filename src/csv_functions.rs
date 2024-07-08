@@ -2,8 +2,8 @@ use csv::{WriterBuilder, ReaderBuilder, Reader, StringRecord, Writer};
 use std::{io, error::Error, fs::OpenOptions, fs::File};
 
 
-pub fn read_csv(file_path: &str) -> Result<(), Box<dyn Error>> {
-    let mut reader: Reader<File> = Reader::from_path(file_path)?;
+pub fn read_csv(path_to_save: &str) -> Result<(), Box<dyn Error>> {
+    let mut reader: Reader<File> = Reader::from_path(path_to_save)?;
     println!("----------------------------------------------------------------------------");
     
     //prints the headers
@@ -27,8 +27,8 @@ pub fn read_csv(file_path: &str) -> Result<(), Box<dyn Error>> {
 }
 
 //user writes the data that wants to add and then return the vector new_data of strings 
-pub fn data_to_insert(file_path: &str) -> Result<Vec<String>, Box<dyn Error>> {
-    let mut reader: Reader<File> = ReaderBuilder::new().has_headers(true).from_path(file_path)?;
+pub fn data_to_insert(path_to_save: &str) -> Result<Vec<String>, Box<dyn Error>> {
+    let mut reader: Reader<File> = ReaderBuilder::new().has_headers(true).from_path(path_to_save)?;
 
     let header_result: &StringRecord = reader.headers()?;
 
@@ -52,13 +52,13 @@ pub fn data_to_insert(file_path: &str) -> Result<Vec<String>, Box<dyn Error>> {
 }
 
 //adds a new row at the end with the input from data_to_insert function
-pub fn write_in_csv(file_path: &str) -> Result<(), Box<dyn Error>> {
-    let file: File = OpenOptions::new().append(true).open(file_path)?;
+pub fn write_in_csv(path_to_save: &str) -> Result<(), Box<dyn Error>> {
+    let file: File = OpenOptions::new().append(true).open(path_to_save)?;
     
     let mut writer: Writer<File> = WriterBuilder::new().has_headers(true).from_writer(file);
 
 
-    let new_data: Vec<String> = data_to_insert(file_path)?;
+    let new_data: Vec<String> = data_to_insert(path_to_save)?;
     writer.write_record(&new_data)?;
 
     writer.flush()?;
@@ -67,25 +67,32 @@ pub fn write_in_csv(file_path: &str) -> Result<(), Box<dyn Error>> {
 }
 
 //returns the name of the final path of the csv file
-pub fn input_path_file() -> String{
+pub fn input_path_file(to_save: bool) -> String{
     //read the name of the csv file from stdin
-    let mut file_path: String = String::new();
-    println!("Write the name of the csv file: ");
-    io::stdin().read_line(&mut file_path).expect("Failed to read line!");
+    let mut path_to_save: String = String::new();
+    if to_save == false {
+        println!("Write the name of the csv file to open (name_of_your_file.csv): ");
+        io::stdin().read_line(&mut path_to_save).expect("Failed to read line!");
+    }
+    else {
+        println!("Write the name of the file to save the modificated csv file (name_of_your_file.csv): ");
+        io::stdin().read_line(&mut path_to_save).expect("Failed to read line!");
+    }
+
 
     //concat it with the ./ to find the file
-    let file_path: &str = file_path.trim();
+    let path_to_save: &str = path_to_save.trim();
     let path: String = String::from("./");
-    let final_path: String =  path + &file_path;
+    let path_to_save: String =  path + &path_to_save;
 
-    final_path
+    path_to_save
 }
 
 //from specific index of the column and specific string to delete, this function adds everything to a new vector 
 //except the string that the user gives of the specific index of the column and then rewrite the csv file
 //from the content of the vector with the name new_csv_vec
-pub fn remove_from_csv(file_path: &str, index_for_column: usize, string_to_remove: &str) -> Result<(), Box<dyn Error>> {
-    let file: File = File::open(file_path)?;
+pub fn remove_from_csv(path_to_save: &str, index_for_column: usize, string_to_remove: &str) -> Result<(), Box<dyn Error>> {
+    let file: File = File::open(path_to_save)?;
     
     let mut reader: Reader<File> = ReaderBuilder::new().from_reader(file);
 
@@ -106,7 +113,7 @@ pub fn remove_from_csv(file_path: &str, index_for_column: usize, string_to_remov
 
     let header: &StringRecord = reader.headers()?;
 
-    let final_csv_file: File = OpenOptions::new().write(true).truncate(true).open(file_path)?;
+    let final_csv_file: File = OpenOptions::new().write(true).truncate(true).open(path_to_save)?;
 
     let mut writer: Writer<File> = WriterBuilder::new().from_writer(final_csv_file);
 
