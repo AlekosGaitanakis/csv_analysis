@@ -51,6 +51,29 @@ pub fn data_to_insert(path_to_save: &str) -> Result<Vec<String>, Box<dyn Error>>
     
 }
 
+//ask the user for the index that he wants to delete and then ask him what to delete
+pub fn ask_the_user_for_what_to_delete() ->(usize, String){
+    println!("Write the index of the column(starts from 0) :");
+    let mut index_for_column: String = String::new();
+
+    io::stdin()
+        .read_line(&mut index_for_column)
+        .expect("Failed to read line!");
+        
+    let index_for_column: usize = index_for_column.trim().parse().expect("Reason");
+            
+    println!("Write what you want to remove from the column that you wrote before :");
+            
+    let mut string_to_remove: String = String::new();
+    io::stdin()
+        .read_line(&mut string_to_remove)
+        .expect("Failed to read the line!");
+
+    let string_to_remove: String = string_to_remove;
+
+    (index_for_column, string_to_remove)
+}
+
 //adds a new row at the end with the input from data_to_insert function
 pub fn write_in_csv(path_to_save: &str) -> Result<(), Box<dyn Error>> {
     let file: File = OpenOptions::new().append(true).open(path_to_save)?;

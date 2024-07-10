@@ -21,12 +21,13 @@ fn which_file()->Result<(), Box<dyn Error>>{
 }
 
 
+//creates the temp file with the name of the path_to_save and copy all the data from the final_path
 fn temp_final_path(final_path: &str, path_to_save: &str) ->Result<(), Box<dyn Error>> {
     let mut rdr: Reader<File> = Reader::from_path(&final_path)?;
     
     let headers: &StringRecord = rdr.headers()?;
     
-    let temp_file = File::create(path_to_save)?;
+    let temp_file: File = File::create(path_to_save)?;
 
     let mut wrt: Writer<File> = Writer::from_writer(temp_file);
 
@@ -60,17 +61,8 @@ fn choice_handler(choice: usize, path_to_save: &str) {
             choice_input(&path_to_save);
         },
         3 => {
-            println!("Write the index of the column(starts from 0) :");
-            let mut index_for_column: String = String::new();
 
-            io::stdin().read_line(&mut index_for_column).expect("Failed to read line!");
-            let index_for_column: usize = index_for_column.trim().parse().expect("Reason");
-            
-            println!("Write what you want to remove from the column that you wrote before :");
-            let mut string_to_remove: String = String::new();
-            io::stdin()
-                .read_line(&mut string_to_remove)
-                .expect("Failed to read the line!");
+            let (index_for_column, string_to_remove) = csv_functions::ask_the_user_for_what_to_delete();
 
             let string_to_remove: &str = string_to_remove.trim();
 
