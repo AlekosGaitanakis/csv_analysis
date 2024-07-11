@@ -1,10 +1,32 @@
 use csv::{WriterBuilder, ReaderBuilder, Reader, StringRecord, Writer};
-use std::{io, error::Error, fs::OpenOptions, fs::File};
+use std::{error::Error, fs::{self, File, OpenOptions}, io::{self}};
 
+
+
+pub fn delete_csv_file(path_to_delete: &str) -> Result<(),  Box<dyn Error>> {
+    fs::remove_file(path_to_delete)?;
+
+    Ok(())
+}
+
+fn number_of_minus_to_print(path_to_save: &str) ->Result<(), Box<dyn Error>>{
+    let mut rdr: Reader<File> = Reader::from_path(path_to_save)?;
+
+    let headers: &StringRecord = rdr.headers()?;
+
+    for header in headers.iter() {
+        for _i in header.chars() {
+            print!("-");
+        }
+    }
+    
+    println!("----------");
+    Ok(())
+}
 
 pub fn read_csv(path_to_save: &str) -> Result<(), Box<dyn Error>> {
     let mut reader: Reader<File> = Reader::from_path(path_to_save)?;
-    println!("----------------------------------------------------------------------------");
+    number_of_minus_to_print(&path_to_save)?;
     
     //prints the headers
     let headers: &StringRecord = reader.headers()?;
@@ -12,7 +34,7 @@ pub fn read_csv(path_to_save: &str) -> Result<(), Box<dyn Error>> {
         print!("{} | ", header);
     }
     println!();
-    println!("----------------------------------------------------------------------------");
+    number_of_minus_to_print(&path_to_save)?;
     //prints the other rows
     for result in reader.records() {
         let record: StringRecord = result?;
@@ -22,7 +44,7 @@ pub fn read_csv(path_to_save: &str) -> Result<(), Box<dyn Error>> {
         }
         println!();
     }
-    println!("----------------------------------------------------------------------------");
+    number_of_minus_to_print(&path_to_save)?;
     Ok(())
 }
 
@@ -90,23 +112,27 @@ pub fn write_in_csv(path_to_save: &str) -> Result<(), Box<dyn Error>> {
 }
 
 //returns the name of the final path of the csv file
-pub fn input_path_file(to_save: bool) -> String{
+pub fn input_path_file(what_to_do: usize) -> String{
     //read the name of the csv file from stdin
     let mut path_to_save: String = String::new();
-    if to_save == false {
-        println!("Write the name of the csv file to open (name_of_your_file.csv): ");
+    if what_to_do == 0 {
+        println!("Write the name of the csv file to open: ");
         io::stdin().read_line(&mut path_to_save).expect("Failed to read line!");
     }
-    else {
-        println!("Write the name of the file to save the modificated csv file (name_of_your_file.csv): ");
+    else if what_to_do == 1 {
+        println!("Write the name of the file to save the modificated csv file: ");
         io::stdin().read_line(&mut path_to_save).expect("Failed to read line!");
+    }
+    else if what_to_do == 3 {
+        println!("Write the name of the file to delete: ");
+        io::stdin().read_line(&mut path_to_save).expect("Failed to read line!");   
     }
 
 
     //concat it with the ./ to find the file
     let path_to_save: &str = path_to_save.trim();
     let path: String = String::from("./");
-    let path_to_save: String =  path + &path_to_save;
+    let path_to_save: String =  path + &path_to_save + ".csv";
 
     path_to_save
 }

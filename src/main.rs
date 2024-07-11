@@ -1,5 +1,6 @@
 use std::{io, process, error::Error, fs::File};
 use csv::{Reader, StringRecord, Writer};
+use csv_functions::input_path_file;
 
 
 mod csv_functions;
@@ -13,8 +14,8 @@ fn main() {
 
 //stores the file of the name and calls for the choice_input func
 fn which_file()->Result<(), Box<dyn Error>>{
-    let final_path: String = csv_functions::input_path_file(false);
-    let path_to_save: String = csv_functions::input_path_file(true);
+    let final_path: String = csv_functions::input_path_file(0);
+    let path_to_save: String = csv_functions::input_path_file(1);
     temp_final_path(&final_path, &path_to_save)?;
     choice_input(&path_to_save);
     Ok(())
@@ -73,6 +74,15 @@ fn choice_handler(choice: usize, path_to_save: &str) {
             choice_input(&path_to_save);
         },
         4 => {
+            let path_to_delete: String = input_path_file(3);
+            
+            if let Err(e) = csv_functions::delete_csv_file(&path_to_delete) {
+                println!("error running example: {e}");
+                process::exit(1); 
+            }
+            choice_input(&path_to_save)
+        },
+        5 => {
             println!("Program exit succesfully!");
             process::exit(1);
         },
@@ -92,7 +102,8 @@ fn choice_input(path_to_save: &str) {
     println!("    1 print the csv file,");
     println!("    2 insert,");
     println!("    3 delete,");
-    println!("    4 exit");
+    println!("    4 delete file");
+    println!("    5 exit");
 
     io::stdin()
         .read_line(&mut choice)
