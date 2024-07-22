@@ -1,9 +1,9 @@
 use std::{io, process, error::Error, fs::File};
 use csv::{Reader, StringRecord, Writer};
-use csv_functions::input_path_file;
 
 
-mod csv_functions;
+mod simple_system_csv;
+mod sort_system_csv;
 
 fn main() {
     if let Err(e) = which_file(){
@@ -14,8 +14,8 @@ fn main() {
 
 //stores the file of the name and calls for the choice_input func
 fn which_file()->Result<(), Box<dyn Error>>{
-    let final_path: String = csv_functions::input_path_file(0);
-    let path_to_save: String = csv_functions::input_path_file(1);
+    let final_path: String = simple_system_csv::input_path_file(0);
+    let path_to_save: String = simple_system_csv::input_path_file(1);
     temp_final_path(&final_path, &path_to_save)?;
     choice_input(&path_to_save);
     Ok(())
@@ -49,13 +49,13 @@ fn temp_final_path(final_path: &str, path_to_save: &str) ->Result<(), Box<dyn Er
 fn choice_handler(choice: usize, path_to_save: &str) {
     match choice {
         1 => {
-            if let Err(e) = csv_functions::read_csv(&path_to_save){
+            if let Err(e) = simple_system_csv::read_csv(&path_to_save){
                 eprintln!("{}", e);
             }
             choice_input(&path_to_save);
         },
         2 => {
-            if let Err(e) = csv_functions::write_in_csv(&path_to_save) {
+            if let Err(e) = simple_system_csv::write_in_csv(&path_to_save) {
                 println!("error running example: {e}");
                 process::exit(1);
             }
@@ -63,26 +63,39 @@ fn choice_handler(choice: usize, path_to_save: &str) {
         },
         3 => {
 
-            let (index_for_column, string_to_remove) = csv_functions::ask_the_user_for_what_to_delete();
+            let (index_for_column, string_to_remove) = simple_system_csv::ask_the_user_for_what_to_delete();
 
             let string_to_remove: &str = string_to_remove.trim();
 
-            if let Err(e) = csv_functions::remove_from_csv(&path_to_save, index_for_column, &string_to_remove) {
+            if let Err(e) = simple_system_csv::remove_from_csv(&path_to_save, index_for_column, &string_to_remove) {
                 println!("error running example: {e}");
                 process::exit(1);  
             }
             choice_input(&path_to_save);
         },
         4 => {
-            let path_to_delete: String = input_path_file(3);
             
-            if let Err(e) = csv_functions::delete_csv_file(&path_to_delete) {
+            let (which_column, ascending, what_type) = sort_system_csv::input_for_sorting();
+            if let Err(e) = sort_system_csv::sort_column(&path_to_save, which_column, ascending, &what_type) {
+                println!("error running example: {e}");
+                process::exit(1);  
+            }
+            choice_input(&path_to_save);        
+
+        },
+        5 => {
+
+        },
+        6 => {
+            let path_to_delete: String = simple_system_csv::input_path_file(3);
+            
+            if let Err(e) = simple_system_csv::delete_csv_file(&path_to_delete) {
                 println!("error running example: {e}");
                 process::exit(1); 
             }
             choice_input(&path_to_save)
         },
-        5 => {
+        7 => {
             println!("Program exit succesfully!");
             process::exit(1);
         },
@@ -102,8 +115,10 @@ fn choice_input(path_to_save: &str) {
     println!("    1 print the csv file,");
     println!("    2 insert,");
     println!("    3 delete,");
-    println!("    4 delete file");
-    println!("    5 exit");
+    println!("    4 sort,");
+    println!("    5 datetime");
+    println!("    6 delete file");
+    println!("    7 exit");
 
     io::stdin()
         .read_line(&mut choice)
