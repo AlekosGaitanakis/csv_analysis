@@ -1,9 +1,20 @@
 # csv_analysis
 csv_analysis is a terminal tool made with rust for:    
+    
     1)printing the csv file,    
+    
     2)insert a new row for each header,    
+<<<<<<< HEAD
     3)delete a specific string from specific column.
     4)delete a file
+=======
+    
+    3)delete a specific string from specific column, 
+    
+    4)delete a file,
+    
+    5)exit
+>>>>>>> origin/main
 
 To run it: cargo run
 
