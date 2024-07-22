@@ -72,8 +72,21 @@ pub fn data_to_insert(path_to_save: &str) -> Result<Vec<String>, Box<dyn Error>>
 }
 
 //ask the user for the index that he wants to delete and then ask him what to delete
-pub fn ask_the_user_for_what_to_delete() ->(usize, String){
-    println!("Write the index of the column(starts from 0) :");
+pub fn ask_the_user_for_what_to_delete(path_to_save: &str) ->Result<(usize, String), Box<dyn Error>>{
+
+    let mut rdr: Reader<File> = Reader::from_path(path_to_save)?;
+
+    let headers: &StringRecord = rdr.headers()?;
+
+    println!("Write the number of the column you want to sort");
+
+    let mut counter: usize = 0;
+
+    //print the header for the user to see what number is in the column the user want
+    for header in headers.iter() {
+        println!("{} : {}", header, counter);
+        counter += 1;
+    }
     let mut index_for_column: String = String::new();
 
     io::stdin()
@@ -91,7 +104,7 @@ pub fn ask_the_user_for_what_to_delete() ->(usize, String){
 
     let string_to_remove: String = string_to_remove;
 
-    (index_for_column, string_to_remove)
+    Ok((index_for_column, string_to_remove))
 }
 
 //adds a new row at the end with the input from data_to_insert function

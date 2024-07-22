@@ -63,22 +63,31 @@ fn choice_handler(choice: usize, path_to_save: &str) {
         },
         3 => {
 
-            let (index_for_column, string_to_remove) = simple_system_csv::ask_the_user_for_what_to_delete();
+            match simple_system_csv::ask_the_user_for_what_to_delete(path_to_save){
+                Ok((index_for_column,string_to_remove)) => {
+                    let string_to_remove: &str = string_to_remove.trim();
 
-            let string_to_remove: &str = string_to_remove.trim();
-
-            if let Err(e) = simple_system_csv::remove_from_csv(&path_to_save, index_for_column, &string_to_remove) {
-                println!("error running example: {e}");
-                process::exit(1);  
+                    if let Err(e) = simple_system_csv::remove_from_csv(&path_to_save, index_for_column, &string_to_remove) {
+                        println!("error running example: {e}");
+                        process::exit(1);  
+                    }
+                }
+                Err(e) => println!("Error: {}", e)
             }
+
+
             choice_input(&path_to_save);
         },
         4 => {
-            
-            let (which_column, ascending, what_type) = sort_system_csv::input_for_sorting();
-            if let Err(e) = sort_system_csv::sort_column(&path_to_save, which_column, ascending, &what_type) {
-                println!("error running example: {e}");
-                process::exit(1);  
+            match sort_system_csv::input_for_sorting(path_to_save) {
+                Ok((which_column, ascending, what_type)) =>{
+
+                    if let Err(e) = sort_system_csv::sort_column(&path_to_save, which_column, ascending, &what_type) {
+                        println!("error running example: {e}");
+                        process::exit(1);  
+                    }
+                }
+                Err(e) => println!("Error: {}", e)
             }
             choice_input(&path_to_save);        
 

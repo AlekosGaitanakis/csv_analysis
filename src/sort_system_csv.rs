@@ -3,9 +3,21 @@ use std::{error::Error, fs::{self, File}, io::{self}, vec};
 
 //asks the user the column that want to sort and then asks the user
 //for ascending or descending
-pub fn input_for_sorting() -> (usize, bool, String){
+pub fn input_for_sorting(path_to_save: &str) -> Result<(usize, bool, String), Box<dyn Error>>{
 
-    println!("Write the column you want to sort");
+    let mut rdr: Reader<File> = Reader::from_path(path_to_save)?;
+
+    let headers: &StringRecord = rdr.headers()?;
+
+    println!("Write the number of the column you want to sort");
+
+    let mut counter: usize = 0;
+
+    //print the header for the user to see what number is in the column the user want
+    for header in headers.iter() {
+        println!("{} : {}", header, counter);
+        counter += 1;
+    }
 
     //input for which column to sort
     let mut which_column = String::new();
@@ -38,7 +50,7 @@ pub fn input_for_sorting() -> (usize, bool, String){
     let which_column: usize = which_column.trim().to_string().parse().expect("Failed to parse");
     let ascending: bool = ascending.trim().to_string().parse::<bool>().expect("Failed to parse");
 
-    (which_column, ascending, what_type)
+    Ok((which_column, ascending, what_type))
 }
 
 
