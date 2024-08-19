@@ -4,6 +4,7 @@ use csv::{Reader, StringRecord, Writer};
 
 mod simple_system_csv;
 mod sort_system_csv;
+mod specific_mod_system;
 
 fn main() {
     if let Err(e) = which_file(){
@@ -93,7 +94,11 @@ fn choice_handler(choice: usize, path_to_save: &str) {
 
         },
         5 => {
-
+            if let Err(e) = specific_mod_system::specific_modification(path_to_save){
+                println!("error running example: {e}");
+                process::exit(1);  
+            }
+            choice_input(&path_to_save);
         },
         6 => {
             let path_to_delete: String = simple_system_csv::input_path_file(3);
@@ -102,7 +107,7 @@ fn choice_handler(choice: usize, path_to_save: &str) {
                 println!("error running example: {e}");
                 process::exit(1); 
             }
-            choice_input(&path_to_save)
+            choice_input(&path_to_save);
         },
         7 => {
             println!("Program exit succesfully!");
@@ -125,7 +130,7 @@ fn choice_input(path_to_save: &str) {
     println!("    2 insert,");
     println!("    3 delete,");
     println!("    4 sort,");
-    println!("    5 datetime");
+    println!("    5 specific values to keep");
     println!("    6 delete file");
     println!("    7 exit");
 
